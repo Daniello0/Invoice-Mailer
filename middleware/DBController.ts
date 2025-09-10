@@ -47,7 +47,7 @@ export default class DBController {
     try {
       // @ts-ignore
       return await this.sequelize.query<Client>(
-        "SELECT * FROM public.clients WHERE email = :email LIMIT 1;", // LIMIT 1 здесь тоже важен
+        "SELECT * FROM public.clients WHERE email = :email LIMIT 1;",
         {
           replacements: { email },
           // @ts-ignore

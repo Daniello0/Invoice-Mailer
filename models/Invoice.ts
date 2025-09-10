@@ -14,7 +14,7 @@ export interface InvoiceLog {
 }
 
 export interface PlainInvoice {
-  email: any;
+  email: any; // TODO: any
   works: any[];
 }
 
@@ -32,6 +32,7 @@ export class Invoice {
     this.works.push({ name: work, cost: cost });
   }
 
+  // zod, yup - использовать для валидации
   static validateInvoice = (invoice: PlainInvoice): boolean => {
     console.log("Валидация данных...");
 

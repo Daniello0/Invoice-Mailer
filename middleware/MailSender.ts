@@ -65,6 +65,7 @@ export default class MailSender {
 
   // Работает только для daniilreservemail@gmail.com
   static async sendTestEmail(pdfBuffer: Buffer) {
+    // ts
     const mail: MailDataRequired = {
       to: GMAIL_USER,
       from: mailOptions.from,
@@ -79,6 +80,7 @@ export default class MailSender {
       ],
     };
 
+    // не при каждой отправке
     sgMailer.setApiKey(SENDGRID_API_KEY);
 
     try {
