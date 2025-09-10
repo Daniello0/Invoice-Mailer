@@ -1,49 +1,21 @@
 import express from "express";
 import * as console from "node:console";
-import DBController from "./middleware/DBController.js";
+import DBService from "./services/DBService.js";
 import { Invoice, InvoiceLog } from "./models/Invoice.js";
 import QueueController, {
   redisConnection,
-} from "./middleware/QueueController.js";
+} from "./services/QueueController.js";
 import { Client } from "./models/Client.js";
 import process from "node:process";
 import dotenv from "dotenv";
-import swaggerUi from "swagger-ui-express";
-import swaggerJsdoc from "swagger-jsdoc";
-import path from "node:path";
+import testRoute from "./routes/TestRoute.js";
+import setupSwagger from "./routes/Swagger.js";
 
 dotenv.config();
 const app = express();
+const dbController = new DBService();
 
-const dbController = new DBController();
-
-const swaggerOptions: swaggerJsdoc.Options = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "Invoice Generation API",
-      version: "1.0.0",
-      description: "API для создания и отправки счетов на оплату.",
-    },
-    servers: [
-      {
-        url: "http://localhost:3001",
-        description: "Локальный сервер для разработки",
-      },
-    ],
-    components: {
-      schemas: {},
-    },
-  },
-  apis: [
-    path.join(process.cwd(), "server.ts"),
-    path.join(process.cwd(), "schemas/*.ts"),
-  ],
-};
-
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
-
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+setupSwagger(app);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -59,9 +31,7 @@ app.use(express.urlencoded({ extended: true }));
  *       '200':
  *         description: Запрос успешно принят
  */
-app.get("/test", (_req, res) => {
-  res.sendStatus(200);
-});
+app.use(testRoute);
 
 
 /**

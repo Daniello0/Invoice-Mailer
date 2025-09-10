@@ -4,7 +4,7 @@ import * as console from "node:console";
 import { Invoice, InvoiceLog } from "../models/Invoice.js";
 import { Client } from "../models/Client.js";
 
-export default class DBController {
+export default class DBService {
   sequelize: Sequelize | undefined;
   url: string | undefined;
 

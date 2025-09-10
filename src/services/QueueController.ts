@@ -62,7 +62,7 @@ export default class QueueController {
       );
     });
 
-    this.worker.on("failed", (job, err) => {
+    this.worker.on("failed", (job: Job, err: Error) => {
       try {
         console.log(
           `Worker '${this.name}': Ошибка в инвойсе ${job?.data.invoice.id}!`,
