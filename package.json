@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx tsx server.ts",
+    "start": "npx tsx src/server.ts",
     "lint": "npx eslint .",
     "format": "npx prettier . --write",
-    "docker-compose-up": "docker-compose up"
+    "docker-compose-up": "docker-compose up",
+    "run_client_test": "npx tsx src/test/client_test.tsx"
   },
   "keywords": [],
   "author": "",

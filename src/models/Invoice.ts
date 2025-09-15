@@ -14,8 +14,8 @@ export interface InvoiceLog {
 }
 
 export interface PlainInvoice {
-  email: any; // TODO: any
-  works: any[];
+  email: string;
+  works: Work[];
 }
 
 export class Invoice {
@@ -28,7 +28,7 @@ export class Invoice {
     this.email = email;
   }
 
-  addInvoice(work: string, cost: number) {
+  addWork(work: string, cost: number) {
     this.works.push({ name: work, cost: cost });
   }
 

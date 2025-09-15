@@ -6,7 +6,6 @@ import fs from "fs";
 import PdfGenerator from "./PdfGenerator.js";
 import MailSender from "./MailSender.js";
 import PdfView from "../views/PdfView.js";
-import * as console from "node:console";
 
 export default class Factory {
   static async generateAndSendPdfToClient({
@@ -17,7 +16,7 @@ export default class Factory {
     invoice: Invoice;
   }) {
     try {
-      const cssString = this.getCssString("./views/PdfView.css");
+      const cssString = this.getCssString("src/views/PdfView.css");
 
       const reactComponentWithProps = (
         <PdfView invoice={invoice} client={client} styles={cssString} />
@@ -30,7 +29,6 @@ export default class Factory {
       // await MailSender.sendPdfToClient(client.email, pdfBuffer);
       await MailSender.sendTestEmail(pdfBuffer);
     } catch (error) {
-      console.error(error);
       throw error;
     }
   }

@@ -1,19 +1,18 @@
 import express from "express";
 import * as console from "node:console";
 import DBService from "./services/DBService.js";
-import { Invoice, InvoiceLog } from "./models/Invoice.js";
-import QueueController, {
-  redisConnection,
-} from "./services/QueueController.js";
-import { Client } from "./models/Client.js";
+import { Invoice } from "./models/Invoice.js";
 import process from "node:process";
 import dotenv from "dotenv";
 import testRoute from "./routes/TestRoute.js";
 import setupSwagger from "./routes/Swagger.js";
+import createUser from "./routes/CreateUser.js";
+import setupSendInvoiceRoute from "./controllers/SendInvoiceController.js";
 
 dotenv.config();
 const app = express();
-const dbController = new DBService();
+const dbService = new DBService();
+await dbService.init();
 
 setupSwagger(app);
 
@@ -63,50 +62,18 @@ app.use(testRoute);
  */
 app.post("/api/invoice", async (req, res) => {
   console.log("Обращение к серверу...");
-  const reqInvoice: Invoice = req.body;
-  if (!Invoice.validateInvoice(reqInvoice)) {
-    res.status(500).send({ message: "Ошибка! Неверный формат входных данных" });
-    return;
-  }
   try {
-    // 1: добавить лог в БД
-    console.log("Начало проверки и добавления инвойса в лог");
-    await dbController.checkEmailExistsAddInvoiceToLogs(reqInvoice);
-
-    // 2: взять данные из логов
-    console.log("Получение клинтов");
-    const client: Client = await dbController.getClient(reqInvoice.email);
-    const invoiceFromDb: InvoiceLog = await dbController.getInvoiceFromLogs(
-      reqInvoice.email,
-    );
-
-    const invoice: Invoice = new Invoice(reqInvoice.email);
-    invoice.works = JSON.parse(invoiceFromDb.works);
-    invoice.id = invoiceFromDb.id;
-    invoice.created_at = invoiceFromDb.created_at;
-
-    console.log(client, invoice);
-
-    // 3: добавить данные в очередь и обработать
-    console.log("Начало добавления данных в очередь");
-    const queueController = new QueueController(
-      "pdf-generator",
-      redisConnection,
-    );
-    await queueController.addDataToQueue({ client: client, invoice: invoice });
-    res.sendStatus(200);
+    const reqInvoice: Invoice = req.body;
+    await setupSendInvoiceRoute(reqInvoice, dbService)
+    res.sendStatus(200)
   } catch (error) {
-    console.log("Вызывается обработчик ошибок сервера");
     console.error(error);
     res.status(500).send({ message: error.message });
   }
 });
 
-app.post("/api/client", (_req, res) => {
-  res.sendStatus(500);
-});
+app.use(createUser);
 
 app.listen(process.env.APP_PORT, async () => {
-  await dbController.init();
   console.log("Сервер запущен на http://localhost:" + process.env.APP_PORT);
 });

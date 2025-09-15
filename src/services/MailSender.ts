@@ -49,24 +49,12 @@ const mailOptions: MailOptionsInterface = {
   ],
 };
 
-export default class MailSender {
-  // Работает только при отправке с проверенного провайдера. Не работает, если отправлять через мобильную связь
-  // или с использованием VPN
-  static async sendPdfToClient(recipientEmail: string, pdfBuffer: Buffer) {
-    mailOptions.to = recipientEmail;
-    mailOptions.attachments[0].content = pdfBuffer;
-    try {
-      const info = await transporter.sendMail(mailOptions);
-      console.log("Письмо успешно отправлено: ", info.response);
-    } catch (error) {
-      throw error;
-    }
-  }
+sgMailer.setApiKey(SENDGRID_API_KEY);
 
-  // Работает только для daniilreservemail@gmail.com
-  static async sendTestEmail(pdfBuffer: Buffer) {
-    // ts
-    const mail: MailDataRequired = {
+export default class MailSender {
+
+  static getSgMailOptions(pdfBuffer: Buffer) {
+    return {
       to: GMAIL_USER,
       from: mailOptions.from,
       subject: mailOptions.subject,
@@ -79,9 +67,40 @@ export default class MailSender {
         }
       ],
     };
+  }
 
-    // не при каждой отправке
-    sgMailer.setApiKey(SENDGRID_API_KEY);
+  static getMailOptions(recipient: string, pdfBuffer: Buffer): MailOptionsInterface {
+    return {
+      from: GMAIL_USER,
+      to: recipient,
+      subject: "Счёт на оплату услуг",
+      text: "Здравствуйте! Ваш счет за оплату выполненных услуг в приложении.",
+      attachments: [
+        {
+          filename: "invoice.pdf",
+          content: pdfBuffer,
+          contentType: "application/pdf",
+        },
+      ],
+    }
+  }
+
+  // Работает только при отправке с проверенного провайдера. Не работает, если отправлять через мобильную связь
+  // или с использованием VPN
+  static async sendPdfToClient(recipientEmail: string, pdfBuffer: Buffer) {
+    const mailOptions: MailOptionsInterface = this.getMailOptions(recipientEmail, pdfBuffer);
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log("Письмо успешно отправлено: ", info.response);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Работает только для daniilreservemail@gmail.com
+  static async sendTestEmail(pdfBuffer: Buffer) {
+    // ts
+    const mail: MailDataRequired = this.getSgMailOptions(pdfBuffer);
 
     try {
       await sgMailer.send(mail);

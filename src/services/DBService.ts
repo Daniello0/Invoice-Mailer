@@ -18,7 +18,6 @@ export default class DBService {
     const DATABASE_URL: string | undefined = process.env.DATABASE_URL;
 
     if (!DATABASE_URL) {
-      console.error("DATABASE_URL не определен в .env файле");
       throw new Error("DATABASE_URL не прописан в конфигурации.");
     }
 
@@ -38,19 +37,11 @@ export default class DBService {
 
   async getClient(email: string): Promise<Client> {
     email = email.trim();
-    if (!this.sequelize) {
-      throw new Error(
-        "Соединение с БД не установлено (sequelize is undefined).",
-      );
-    }
-
     try {
-      // @ts-ignore
       return await this.sequelize.query<Client>(
         "SELECT * FROM public.clients WHERE email = :email LIMIT 1;",
         {
           replacements: { email },
-          // @ts-ignore
           type: "SELECT",
           plain: true,
         },
@@ -61,32 +52,20 @@ export default class DBService {
     }
   }
 
-  emailExistsInDB = async (email: string) => {
+  emailExistsInDB = async (email: string): Promise<boolean> => {
     email = email.trim();
-    if (!this.sequelize) {
-      throw new Error("Sequelize не инициализирован.");
-    }
-    const client = await this.sequelize.query(
-      "SELECT * FROM public.clients WHERE email = :email",
+    const client: Client = await this.sequelize.query<Client>(
+      "SELECT * FROM public.clients WHERE email = :email LIMIT 1;",
       {
         replacements: { email },
+        plain: true,
         type: "SELECT",
       },
     );
-    if (!client) {
-      return false;
-    } else {
-      return client.length > 0;
-    }
+    return client !== undefined;
   };
 
-  checkEmailExistsAddInvoiceToLogs = async (invoice: Invoice) => {
-    invoice.email = invoice.email.trim();
-    const emailExists: boolean = await this.emailExistsInDB(invoice.email);
-    if (!emailExists) {
-      console.error("Email не найден в БД: ", invoice.email);
-      throw new Error("Email не найден в БД: " + invoice.email);
-    }
+  addInvoiceToLogs = async (invoice: Invoice) => {
     try {
       await this.sequelize?.query(
           `
@@ -111,20 +90,12 @@ export default class DBService {
 
   async getInvoiceFromLogs(email: string): Promise<InvoiceLog> {
     email = email.trim();
-    if (!this.sequelize) {
-      throw new Error(
-        "Соединение с БД не установлено (sequelize is undefined).",
-      );
-    }
-
     try {
-      // @ts-ignore
       return await this.sequelize.query<InvoiceLog>(
         `SELECT * FROM public.invoice_logs WHERE email = :email;`,
         {
           replacements: { email },
           plain: true,
-          // @ts-ignore
           type: "SELECT",
         },
       );
