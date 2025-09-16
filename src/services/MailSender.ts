@@ -3,7 +3,7 @@ import process from "node:process";
 import nodemailer from "nodemailer";
 import * as console from "node:console";
 import sgMailer from '@sendgrid/mail'
-import {MailDataRequired} from "@sendgrid/helpers/classes/mail.js";
+import MailOptionsService from "./MailOptionsService.js";
 
 dotenv.config();
 const GMAIL_USER: string | undefined = process.env.GMAIL_USER;
@@ -21,76 +21,16 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-interface MailOptionsInterface {
-  from: string
-  to: string
-  subject: string
-  text: string
-  attachments: AttachmentInterface[]
-}
-
-interface AttachmentInterface {
-  filename: string
-  content: Buffer
-  contentType: string
-}
-
-const mailOptions: MailOptionsInterface = {
-  from: GMAIL_USER,
-  to: undefined,
-  subject: "Счёт на оплату услуг",
-  text: "Здравствуйте! Ваш счет за оплату выполненных услуг в приложении.",
-  attachments: [
-    {
-      filename: "invoice.pdf",
-      content: undefined,
-      contentType: "application/pdf",
-    },
-  ],
-};
-
 sgMailer.setApiKey(SENDGRID_API_KEY);
 
 export default class MailSender {
-
-  static getSgMailOptions(pdfBuffer: Buffer) {
-    return {
-      to: GMAIL_USER,
-      from: mailOptions.from,
-      subject: mailOptions.subject,
-      text: mailOptions.text,
-      attachments: [
-        {
-          filename: mailOptions.attachments[0].filename,
-          content: pdfBuffer.toString("base64"),
-          type: mailOptions.attachments[0].contentType
-        }
-      ],
-    };
-  }
-
-  static getMailOptions(recipient: string, pdfBuffer: Buffer): MailOptionsInterface {
-    return {
-      from: GMAIL_USER,
-      to: recipient,
-      subject: "Счёт на оплату услуг",
-      text: "Здравствуйте! Ваш счет за оплату выполненных услуг в приложении.",
-      attachments: [
-        {
-          filename: "invoice.pdf",
-          content: pdfBuffer,
-          contentType: "application/pdf",
-        },
-      ],
-    }
-  }
-
   // Работает только при отправке с проверенного провайдера. Не работает, если отправлять через мобильную связь
   // или с использованием VPN
   static async sendPdfToClient(recipientEmail: string, pdfBuffer: Buffer) {
-    const mailOptions: MailOptionsInterface = this.getMailOptions(recipientEmail, pdfBuffer);
+    const mailOptions = new MailOptionsService().setFrom(GMAIL_USER);
+
     try {
-      const info = await transporter.sendMail(mailOptions);
+      const info = await transporter.sendMail(mailOptions.getMailOptions(recipientEmail, pdfBuffer));
       console.log("Письмо успешно отправлено: ", info.response);
     } catch (error) {
       throw error;
@@ -100,10 +40,10 @@ export default class MailSender {
   // Работает только для daniilreservemail@gmail.com
   static async sendTestEmail(pdfBuffer: Buffer) {
     // ts
-    const mail: MailDataRequired = this.getSgMailOptions(pdfBuffer);
+    const mailOptions = new MailOptionsService().setFrom(GMAIL_USER);
 
     try {
-      await sgMailer.send(mail);
+      await sgMailer.send(mailOptions.getSgMailOptions(pdfBuffer));
     } catch (error) {
 
       console.error('Ошибка при отправке письма через @sendgrid/mail:');

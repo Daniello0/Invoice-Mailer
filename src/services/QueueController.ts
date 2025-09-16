@@ -3,7 +3,6 @@ import IORedis, { Redis } from "ioredis";
 import Factory from "./Factory.js";
 import * as console from "node:console";
 
-// @ts-ignore
 export const redisConnection = new IORedis({
   host: process.env.REDIS_HOST,
   port: parseInt(process.env.REDIS_PORT),
