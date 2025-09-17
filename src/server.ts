@@ -7,7 +7,8 @@ import dotenv from "dotenv";
 import testRoute from "./routes/TestRoute.js";
 import setupSwagger from "./routes/Swagger.js";
 import createUser from "./routes/CreateUser.js";
-import setupSendInvoiceRoute from "./controllers/SendInvoiceController.js";
+import sendInvoiceController from "./controllers/SendInvoiceController.js";
+import setupCreateInvoiceRoute from "./routes/CreateInvoice.js";
 
 dotenv.config();
 const app = express();
@@ -60,17 +61,7 @@ app.use(testRoute);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-app.post("/api/invoice", async (req, res) => {
-  console.log("Обращение к серверу...");
-  try {
-    const reqInvoice: Invoice = req.body;
-    await setupSendInvoiceRoute(reqInvoice, dbService)
-    res.sendStatus(200)
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: error.message });
-  }
-});
+setupCreateInvoiceRoute(app, dbService);
 
 app.use(createUser);
 

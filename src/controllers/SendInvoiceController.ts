@@ -5,7 +5,7 @@ import QueueController, {redisConnection} from "../services/QueueController.js";
 import DBService from "../services/DBService.js";
 
 
-const setupSendInvoiceRoute = async (reqInvoice: Invoice, dbService: DBService) => {
+const sendInvoiceController = async (reqInvoice: Invoice, dbService: DBService) => {
     if (!Invoice.validateInvoice(reqInvoice)) {
         throw new Error("Ошибка! Неверный формат входных данных");
     }
@@ -41,4 +41,4 @@ const setupSendInvoiceRoute = async (reqInvoice: Invoice, dbService: DBService) 
     await queueController.addDataToQueue({ client: client, invoice: invoice });
 }
 
-export default setupSendInvoiceRoute
+export default sendInvoiceController
