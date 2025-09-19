@@ -1,6 +1,6 @@
 import express from "express";
 import * as console from "node:console";
-import DBService from "./services/DBService.js";
+import DBService from "./services/database/DBService.js";
 import process from "node:process";
 import dotenv from "dotenv";
 import testRoute from "./routes/TestRoute.js";

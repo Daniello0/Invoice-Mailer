@@ -1,11 +1,13 @@
 import console from "node:console";
 import {Invoice, InvoiceLog} from "../models/Invoice.js";
 import {Client} from "../models/Client.js";
-import QueueController from "../services/QueueController.js";
-import DBService from "../services/DBService.js";
-import {redisConnection} from "../services/RedisConnection.js";
+import QueueController from "../services/queues/QueueController.js";
+import DBService from "../services/database/DBService.js";
+import {redisConnection} from "../services/redis/RedisConnection.js";
 
-
+/*
+TODO: сделать функцию меньше (разбить на части)
+ */
 const sendInvoiceController = async (reqInvoice: Invoice, dbService: DBService) => {
     if (!Invoice.validateInvoice(reqInvoice)) {
         throw new Error("Ошибка! Неверный формат входных данных");

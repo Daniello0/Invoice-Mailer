@@ -1,8 +1,11 @@
 import { Queue, Worker, Job } from "bullmq";
 import { Redis } from "ioredis";
-import Factory from "./Factory.js";
+import Factory from "../Factory.js";
 import * as console from "node:console";
 
+/*
+TODO: Разбить одну очередь на 2: создание пдф и отправка почты (GeneratePdfQueueService.ts, SendMailQueueService.ts)
+ */
 export default class QueueController {
   name: string;
   queue: Queue;

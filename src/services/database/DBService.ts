@@ -1,9 +1,12 @@
 import {Sequelize} from "sequelize";
 import * as dotenv from "dotenv";
 import * as console from "node:console";
-import {Invoice, InvoiceLog} from "../models/Invoice.js";
-import {Client} from "../models/Client.js";
+import {Invoice, InvoiceLog} from "../../models/Invoice.js";
+import {Client} from "../../models/Client.js";
 
+/*
+TODO: Заменить запросы на setter-Chain (Sequelize TypeScript)
+ */
 export default class DBService {
   sequelize: Sequelize | undefined;
   url: string | undefined;
@@ -35,7 +38,7 @@ export default class DBService {
     }
   };
 
-  async getClient(email: string): Promise<Client> {
+  getClient = async (email: string): Promise<Client> => {
     email = email.trim();
     try {
       return await this.sequelize.query<Client>(
@@ -88,7 +91,7 @@ export default class DBService {
     }
   };
 
-  async getInvoiceFromLogs(email: string): Promise<InvoiceLog> {
+  getInvoiceFromLogs = async (email: string): Promise<InvoiceLog> => {
     email = email.trim();
     try {
       return await this.sequelize.query<InvoiceLog>(

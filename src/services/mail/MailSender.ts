@@ -1,11 +1,9 @@
-import dotenv from "dotenv";
 import process from "node:process";
 import nodemailer from "nodemailer";
 import * as console from "node:console";
 import sgMailer from '@sendgrid/mail'
 import MailOptionsService from "./MailOptionsService.js";
 
-dotenv.config();
 const GMAIL_USER: string | undefined = process.env.GMAIL_USER;
 const GMAIL_APP_PASS: string | undefined = process.env.GMAIL_APP_PASS;
 const SENDGRID_API_KEY: string | undefined = process.env.SENDGRID_API_KEY;
