@@ -1,4 +1,4 @@
-import * as htmlToPdf from "html-pdf-node";
+import htmlToPdf from "html-pdf-node";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
@@ -22,21 +22,17 @@ export default class PdfGenerator {
       },
     };
 
-    try {
-      const pdfBuffer = await htmlToPdf.generatePdf(file, options);
+    const pdfBuffer = await htmlToPdf.generatePdf(file, options);
 
-      if (Buffer.isBuffer(pdfBuffer)) {
-        console.log("PDF успешно создан: invoice.pdf");
-        return pdfBuffer;
-      } else {
-        console.error(
+    if (Buffer.isBuffer(pdfBuffer)) {
+      console.log("PDF успешно создан: invoice.pdf");
+      return pdfBuffer;
+    } else {
+      console.error(
           "Ошибка: html-pdf-node не вернул Buffer.",
           typeof pdfBuffer,
-        );
-        throw new Error("Ошибка: html-pdf-node не вернул Buffer.");
-      }
-    } catch (error) {
-      throw error;
+      );
+      throw new Error("Ошибка: html-pdf-node не вернул Buffer.")
     }
   }
 }

@@ -1,13 +1,7 @@
 import { Queue, Worker, Job } from "bullmq";
-import IORedis, { Redis } from "ioredis";
+import { Redis } from "ioredis";
 import Factory from "./Factory.js";
 import * as console from "node:console";
-
-export const redisConnection = new IORedis({
-  host: process.env.REDIS_HOST,
-  port: parseInt(process.env.REDIS_PORT),
-  maxRetriesPerRequest: null,
-});
 
 export default class QueueController {
   name: string;
@@ -79,10 +73,5 @@ export default class QueueController {
     } catch (error) {
       throw error;
     }
-  }
-
-  async close(): Promise<void> {
-    await this.worker.close();
-    await this.queue.close();
   }
 }

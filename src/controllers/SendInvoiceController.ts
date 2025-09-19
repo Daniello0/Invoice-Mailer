@@ -1,8 +1,9 @@
 import console from "node:console";
 import {Invoice, InvoiceLog} from "../models/Invoice.js";
 import {Client} from "../models/Client.js";
-import QueueController, {redisConnection} from "../services/QueueController.js";
+import QueueController from "../services/QueueController.js";
 import DBService from "../services/DBService.js";
+import {redisConnection} from "../services/RedisConnection.js";
 
 
 const sendInvoiceController = async (reqInvoice: Invoice, dbService: DBService) => {

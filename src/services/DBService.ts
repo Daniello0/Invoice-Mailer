@@ -1,8 +1,8 @@
-import { Sequelize } from "sequelize";
+import {Sequelize} from "sequelize";
 import * as dotenv from "dotenv";
 import * as console from "node:console";
-import { Invoice, InvoiceLog } from "../models/Invoice.js";
-import { Client } from "../models/Client.js";
+import {Invoice, InvoiceLog} from "../models/Invoice.js";
+import {Client} from "../models/Client.js";
 
 export default class DBService {
   sequelize: Sequelize | undefined;
@@ -42,7 +42,7 @@ export default class DBService {
         "SELECT * FROM public.clients WHERE email = :email LIMIT 1;",
         {
           replacements: { email },
-          type: "SELECT",
+          type: 'SELECT',
           plain: true,
         },
       );
@@ -59,7 +59,7 @@ export default class DBService {
       {
         replacements: { email },
         plain: true,
-        type: "SELECT",
+        type: 'SELECT',
       },
     );
     return client !== undefined;
@@ -80,7 +80,7 @@ export default class DBService {
             email: invoice.email,
             works: JSON.stringify(invoice.works),
           },
-          type: "INSERT",
+          type: 'INSERT',
         },
       );
     } catch (error) {
@@ -96,7 +96,7 @@ export default class DBService {
         {
           replacements: { email },
           plain: true,
-          type: "SELECT",
+          type: 'SELECT',
         },
       );
     } catch (error) {

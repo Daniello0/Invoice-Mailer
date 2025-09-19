@@ -1,13 +1,11 @@
 import express from "express";
 import * as console from "node:console";
 import DBService from "./services/DBService.js";
-import { Invoice } from "./models/Invoice.js";
 import process from "node:process";
 import dotenv from "dotenv";
 import testRoute from "./routes/TestRoute.js";
 import setupSwagger from "./routes/Swagger.js";
 import createUser from "./routes/CreateUser.js";
-import sendInvoiceController from "./controllers/SendInvoiceController.js";
 import setupCreateInvoiceRoute from "./routes/CreateInvoice.js";
 
 dotenv.config();
