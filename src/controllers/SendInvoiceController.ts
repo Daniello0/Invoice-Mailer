@@ -1,5 +1,5 @@
 import console from "node:console";
-import {Invoice, InvoiceLog} from "../models/Invoice.js";
+import {Invoice} from "../models/Invoice.js";
 import {Client} from "../models/Client.js";
 import QueueController from "../services/queues/QueueController.js";
 import DBService from "../services/database/DBService.js";
@@ -24,14 +24,9 @@ const sendInvoiceController = async (reqInvoice: Invoice, dbService: DBService) 
     // 2: взять данные из логов
     console.log("Получение клинтов");
     const client: Client = await dbService.getClient(reqInvoice.email);
-    const invoiceFromDb: InvoiceLog = await dbService.getInvoiceFromLogs(
+    const invoice: Invoice = await dbService.getInvoiceFromLogs(
         reqInvoice.email,
     );
-
-    const invoice: Invoice = new Invoice(reqInvoice.email);
-    invoice.works = JSON.parse(invoiceFromDb.works);
-    invoice.id = invoiceFromDb.id;
-    invoice.created_at = invoiceFromDb.created_at;
 
     console.log(client, invoice);
 
