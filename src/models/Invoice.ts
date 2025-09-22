@@ -20,7 +20,7 @@ export class Invoice extends Model<Invoice>{
 
   @Unique
   @Column({
-    type: DataType.STRING,  // Явно указываем тип
+    type: DataType.STRING,
     allowNull: false,
   })
   email!: string;
@@ -61,7 +61,7 @@ export class Invoice extends Model<Invoice>{
     this.works = JSON.stringify(currentWorks);
   }
 
-  // zod, yup - использовать для валидации
+  //TODO: zod, yup - использовать для валидации
   static validateInvoice = (invoice: Invoice): boolean => {
     console.log("Валидация данных...");
 

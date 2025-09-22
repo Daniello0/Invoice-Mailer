@@ -37,8 +37,7 @@ export default class MailSender {
 
   // Работает только для daniilreservemail@gmail.com
   static async sendTestEmail(pdfBuffer: Buffer) {
-    // ts
-    const mailOptions = new MailOptionsService().setFrom(GMAIL_USER);
+    const mailOptions: MailOptionsService = new MailOptionsService().setFrom(GMAIL_USER);
 
     try {
       await sgMailer.send(mailOptions.getSgMailOptions(pdfBuffer));

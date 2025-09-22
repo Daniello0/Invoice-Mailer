@@ -1,7 +1,12 @@
 import { Queue, Worker, Job } from "bullmq";
 import { Redis } from "ioredis";
-import Factory from "../Factory.js";
+import CssService from "../../services/css/CssService.js";
 import * as console from "node:console";
+import PdfGenerator from "../pdf/PdfGenerator.js";
+import MailSender from "../../services/mail/MailSender.js";
+import PdfView from "../../views/PdfView.js";
+import React from "react";
+import Element = React.JSX.Element;
 
 /*
 TODO: Разбить одну очередь на 2: создание пдф и отправка почты (GeneratePdfQueueService.ts, SendMailQueueService.ts)
@@ -37,10 +42,20 @@ export default class QueueController {
         job.data.invoice,
       );
 
-      await Factory.generateAndSendPdfToClient({
-        client: job.data.client,
-        invoice: job.data.invoice,
-      });
+      const client = job.data.client;
+      const invoice = job.data.invoice;
+
+      const cssString: string = CssService.getCssString("src/views/PdfView.css");
+
+      const reactComponentWithProps: Element = (
+          <PdfView invoice={invoice} client={client} styles={cssString} />
+      );
+      const pdfBuffer: Buffer = await PdfGenerator.generateInvoicePdf(
+          reactComponentWithProps,
+      );
+
+      // await MailSender.sendPdfToClient(client.email, pdfBuffer);
+      await MailSender.sendTestEmail(pdfBuffer);
 
       console.log(`Завершил обработку инвойса #${job.data.invoice.id}`);
       return { received: job.data, processed: true };
