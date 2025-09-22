@@ -1,12 +1,27 @@
-import validator from "validator";
 import * as console from "node:console";
 import {Model, Table} from "sequelize-typescript";
 import {AutoIncrement, Column, DataType, PrimaryKey, Unique} from "sequelize-typescript/dist/index.js";
+import {z, ZodSafeParseResult} from "zod";
 
 export interface Work {
   name: string;
   cost: number;
 }
+
+interface validatorResult {
+  success: boolean;
+  errMsg: string;
+}
+
+const workSchema = z.object({
+  name: z.string().min(1, "Название работы не может быть пустым"),
+  cost: z.number(),
+});
+
+const invoiceSchema = z.object({
+  email: z.email("Строка должна иметь вид электронной почты"),
+  works: z.array(workSchema).nonempty("Массив работ не может быть пустым"),
+});
 
 @Table({tableName: 'invoice_logs'})
 export class Invoice extends Model<Invoice>{
@@ -61,20 +76,26 @@ export class Invoice extends Model<Invoice>{
     this.works = JSON.stringify(currentWorks);
   }
 
-  //TODO: zod, yup - использовать для валидации
-  static validateInvoice = (invoice: Invoice): boolean => {
+  static validateInvoice = (invoice: Invoice): validatorResult => {
     console.log("Валидация данных...");
 
-    if (!invoice || typeof invoice !== 'object') return false;
-    if (typeof invoice.email !== 'string' || !validator.isEmail(invoice.email)) return false;
-    if (!Array.isArray(invoice.getWorks()) || invoice.getWorks().length === 0) return false;
-
-    for (const work of invoice.getWorks()) {
-      if (!work || typeof work !== 'object') return false;
-      if (typeof work.name !== 'string' || work.name.trim().length === 0) return false;
-      if (typeof work.cost !== 'number') return false;
+    const invoiceValidate = {
+      email: invoice.email,
+      works: invoice.getWorks(),
     }
 
-    return true;
+    const result: ZodSafeParseResult<{ email: string, works: Work[] }> = invoiceSchema.safeParse(invoiceValidate);
+
+    if (!result.error) {
+      return {
+        success: true,
+        errMsg: ""
+      }
+    } else {
+      return {
+        success: false,
+        errMsg: result.error.message
+      }
+    }
   }
 }

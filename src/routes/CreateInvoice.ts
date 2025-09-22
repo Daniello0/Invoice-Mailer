@@ -1,8 +1,8 @@
 import {Express, Request, Response, Router} from "express";
 import console from "node:console";
-import sendInvoiceController from "../controllers/SendInvoiceController.js";
 import DBService from "../services/database/DBService.js";
 import {Invoice} from "../models/Invoice.js";
+import SendInvoiceController from "../controllers/SendInvoiceController.js";
 
 interface InvoiceInterface {
     email: string;
@@ -10,7 +10,7 @@ interface InvoiceInterface {
 }
 
 interface Work {
-    work: string;
+    name: string;
     cost: number;
 }
 
@@ -23,9 +23,9 @@ const setupCreateInvoiceRoute = (expressApp: Express, dbService: DBService): voi
             const invoice: Invoice = Invoice.build();
             invoice.setEmail(reqInvoice.email);
             reqInvoice.works.forEach((w: Work) => {
-                invoice.addWork(w.work, w.cost);
+                invoice.addWork(w.name, w.cost);
             })
-            await sendInvoiceController(invoice, dbService)
+            await SendInvoiceController.sendInvoice(invoice, dbService);
             res.sendStatus(200)
         } catch (error) {
             console.error(error);

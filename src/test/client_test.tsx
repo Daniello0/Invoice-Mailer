@@ -11,7 +11,7 @@ interface InvoiceInterface {
 }
 
 interface Work {
-  work: string;
+  name: string;
   cost: number;
 }
 
@@ -23,14 +23,13 @@ async function testPostRequest() {
   const dataset: InvoiceInterface = {
     email: 'daniilreservemail@gmail.com',
     works: [
-      {work: 'Работа 1', cost: 100},
-      {work: 'Работа 2', cost: 200},
-      {work: 'Скидка', cost: -50}
+      {name: 'Работа 1', cost: 200},
+      {name: 'Работа 2', cost: 200},
+      {name: 'Скидка', cost: -50}
     ]
   }
 
   console.log(JSON.stringify(dataset, null, 2));
-  console.log(`${api.getUri()}`);
 
   const res: AxiosResponse = await api.post("/api/invoice", dataset);
   if (res) {

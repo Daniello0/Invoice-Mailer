@@ -7,9 +7,11 @@ import MailSender from "../../services/mail/MailSender.js";
 import PdfView from "../../views/PdfView.js";
 import React from "react";
 import Element = React.JSX.Element;
+import {Client} from "../../models/Client.js";
+import {Invoice} from "../../models/Invoice.js";
 
 /*
-TODO: Разбить одну очередь на 2: создание пдф и отправка почты (GeneratePdfQueueService.ts, SendMailQueueService.ts)
+TODO: Разбить одну очередь на 2: создание пдф и отправка почты (GeneratePdfQueue.ts, SendMailQueue.ts)
  */
 export default class QueueController {
   name: string;
@@ -42,8 +44,8 @@ export default class QueueController {
         job.data.invoice,
       );
 
-      const client = job.data.client;
-      const invoice = job.data.invoice;
+      const client: Client = job.data.client;
+      const invoice: Invoice = job.data.invoice;
 
       const cssString: string = CssService.getCssString("src/views/PdfView.css");
 
