@@ -6,24 +6,14 @@ import {redisConnection} from "../services/redis/RedisConnection.js";
 import GeneratePdfQueue from "../services/queues/GeneratePdfQueue.js";
 import SendMailQueue from "../services/queues/SendMailQueue.js";
 
-/*
-TODO: сделать функцию меньше (разбить на части)
- */
 export default class SendInvoiceController {
     static sendInvoice = async (reqInvoice: Invoice, dbService: DBService) => {
 
-        const validateInvoice = Invoice.validateInvoice(reqInvoice);
-        if (!validateInvoice.success) {
-            throw new Error(validateInvoice.errMsg);
-        }
+        // валидация
+        this.validate(reqInvoice);
 
         // 1: добавить лог в БД
-        console.log("Начало проверки и добавления инвойса в лог");
-        if (await dbService.emailExistsInDB(reqInvoice.email)) {
-            await dbService.addInvoiceToLogs(reqInvoice);
-        } else {
-            throw new Error(`Ошибка! Почта ${reqInvoice.email} не найдена`)
-        }
+        await this.addLogToDB(dbService, reqInvoice);
 
         // 2: взять данные из логов
         console.log("Получение клинтов");
@@ -32,22 +22,36 @@ export default class SendInvoiceController {
             reqInvoice.email,
         );
 
-        console.log(client, invoice);
-
         // 3: добавить данные в очередь и обработать
+        await this.addInvoiceToQueue(client, invoice);
+    }
+
+    private static validate(invoice: Invoice) {
+        const validateInvoice = Invoice.validateInvoice(invoice);
+        if (!validateInvoice.success) {
+            throw new Error(validateInvoice.errMsg);
+        }
+    }
+
+    private static async addLogToDB(dbService: DBService, invoice: Invoice) {
+        console.log("Начало проверки и добавления инвойса в лог");
+        if (await dbService.emailExistsInDB(invoice.email)) {
+            await dbService.addInvoiceToLogs(invoice);
+        } else {
+            throw new Error(`Ошибка! Почта ${invoice.email} не найдена`)
+        }
+    }
+
+    private static async addInvoiceToQueue(client: Client, invoice: Invoice) {
         console.log("Начало добавления данных в очередь");
-
         const sendMailQueue: SendMailQueue = new SendMailQueue("mail-sender", redisConnection);
-
         const generatePdfQueue: GeneratePdfQueue = new GeneratePdfQueue(
             "pdf-generator", redisConnection, sendMailQueue
         );
-
         await generatePdfQueue.addDataToQueue({
             client: client,
             invoice: invoice,
         });
-
         console.log("Данные добавлены в очередь.");
     }
 }
