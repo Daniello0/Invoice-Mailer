@@ -1,14 +1,14 @@
 import console from "node:console";
 import {Invoice} from "../models/Invoice.js";
 import {Client} from "../models/Client.js";
-import QueueController from "../services/queues/QueueController.js";
 import DBService from "../services/database/DBService.js";
 import {redisConnection} from "../services/redis/RedisConnection.js";
+import GeneratePdfQueue from "../services/queues/GeneratePdfQueue.js";
+import SendMailQueue from "../services/queues/SendMailQueue.js";
 
 /*
 TODO: сделать функцию меньше (разбить на части)
  */
-
 export default class SendInvoiceController {
     static sendInvoice = async (reqInvoice: Invoice, dbService: DBService) => {
 
@@ -36,11 +36,19 @@ export default class SendInvoiceController {
 
         // 3: добавить данные в очередь и обработать
         console.log("Начало добавления данных в очередь");
-        const queueController = new QueueController(
-            "pdf-generator",
-            redisConnection,
+
+        const sendMailQueue: SendMailQueue = new SendMailQueue("mail-sender", redisConnection);
+
+        const generatePdfQueue: GeneratePdfQueue = new GeneratePdfQueue(
+            "pdf-generator", redisConnection, sendMailQueue
         );
-        await queueController.addDataToQueue({ client: client, invoice: invoice });
+
+        await generatePdfQueue.addDataToQueue({
+            client: client,
+            invoice: invoice,
+        });
+
+        console.log("Данные добавлены в очередь.");
     }
 }
 
