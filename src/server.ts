@@ -7,6 +7,9 @@ import health from "./routes/Health.js";
 import setupSwagger from "./routes/Swagger.js";
 import createUser from "./routes/CreateUser.js";
 import setupCreateInvoiceRoute from "./routes/CreateInvoice.js";
+import SendMailQueue from "./services/queues/SendMailQueue.js";
+import {redisConnection} from "./services/redis/RedisConnection.js";
+import GeneratePdfQueue from "./services/queues/GeneratePdfQueue.js";
 
 dotenv.config();
 const app = express();
@@ -15,6 +18,11 @@ const dbService = new DBService();
 (async () => {
   await dbService.init();
 })();
+
+const sendMailQueue: SendMailQueue = new SendMailQueue("mail-sender", redisConnection);
+const generatePdfQueue: GeneratePdfQueue = new GeneratePdfQueue(
+    "pdf-generator", redisConnection, sendMailQueue
+);
 
 setupSwagger(app);
 
@@ -62,7 +70,7 @@ app.use(health);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-setupCreateInvoiceRoute(app, dbService);
+setupCreateInvoiceRoute(app, dbService, generatePdfQueue);
 
 app.use(createUser);
 

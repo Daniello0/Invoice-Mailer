@@ -2,11 +2,9 @@ import console from "node:console";
 import {Invoice} from "../models/Invoice.js";
 import {Client} from "../models/Client.js";
 import DBService from "../services/database/DBService.js";
-import {redisConnection} from "../services/redis/RedisConnection.js";
 import GeneratePdfQueue from "../services/queues/GeneratePdfQueue.js";
-import SendMailQueue from "../services/queues/SendMailQueue.js";
 
-export const sendInvoice = async (reqInvoice: Invoice, dbService: DBService) => {
+export const sendInvoice = async (reqInvoice: Invoice, dbService: DBService, pdfQueue: GeneratePdfQueue) => {
     validate(reqInvoice);
 
     await addLogToDB(dbService, reqInvoice);
@@ -17,7 +15,7 @@ export const sendInvoice = async (reqInvoice: Invoice, dbService: DBService) => 
         reqInvoice.email,
     );
 
-    await addInvoiceToQueue(client, invoice);
+    await addInvoiceToQueue(client, invoice, pdfQueue);
 }
 
 function validate(invoice: Invoice) {
@@ -36,13 +34,9 @@ async function addLogToDB(dbService: DBService, invoice: Invoice) {
     }
 }
 
-async function addInvoiceToQueue(client: Client, invoice: Invoice) {
+async function addInvoiceToQueue(client: Client, invoice: Invoice, pdfQueue: GeneratePdfQueue) {
     console.log("Начало добавления данных в очередь");
-    const sendMailQueue: SendMailQueue = new SendMailQueue("mail-sender", redisConnection);
-    const generatePdfQueue: GeneratePdfQueue = new GeneratePdfQueue(
-        "pdf-generator", redisConnection, sendMailQueue
-    );
-    await generatePdfQueue.addDataToQueue({
+    await pdfQueue.addDataToQueue({
         client: client,
         invoice: invoice,
     });
