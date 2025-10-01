@@ -3,15 +3,18 @@ import * as console from "node:console";
 import DBService from "./services/database/DBService.js";
 import process from "node:process";
 import dotenv from "dotenv";
-import testRoute from "./routes/TestRoute.js";
+import health from "./routes/Health.js";
 import setupSwagger from "./routes/Swagger.js";
 import createUser from "./routes/CreateUser.js";
 import setupCreateInvoiceRoute from "./routes/CreateInvoice.js";
 
 dotenv.config();
 const app = express();
+
 const dbService = new DBService();
-await dbService.init();
+(async () => {
+  await dbService.init();
+})();
 
 setupSwagger(app);
 
@@ -29,7 +32,7 @@ app.use(express.urlencoded({ extended: true }));
  *       '200':
  *         description: Запрос успешно принят
  */
-app.use(testRoute);
+app.use(health);
 
 
 /**

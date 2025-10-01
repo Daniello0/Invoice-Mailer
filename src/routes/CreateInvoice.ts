@@ -2,7 +2,7 @@ import {Express, Request, Response, Router} from "express";
 import console from "node:console";
 import DBService from "../services/database/DBService.js";
 import {Invoice} from "../models/Invoice.js";
-import SendInvoiceController from "../controllers/SendInvoiceController.js";
+import {sendInvoice} from "../controllers/SendInvoiceController.js";
 
 interface InvoiceInterface {
     email: string;
@@ -25,7 +25,7 @@ const setupCreateInvoiceRoute = (expressApp: Express, dbService: DBService): voi
             reqInvoice.works.forEach((w: Work) => {
                 invoice.addWork(w.name, w.cost);
             })
-            await SendInvoiceController.sendInvoice(invoice, dbService);
+            await sendInvoice(invoice, dbService);
             res.sendStatus(200)
         } catch (error) {
             console.error(error);
