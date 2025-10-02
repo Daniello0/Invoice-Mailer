@@ -3,26 +3,23 @@ import * as console from "node:console";
 import process from "node:process";
 import dotenv from "dotenv";
 import health from "./routes/Health.js";
-import setupSwagger from "./routes/Swagger.js";
+import setupSwagger from "./Swagger.js";
 import createUser from "./routes/CreateUser.js";
 import setupCreateInvoiceRoute from "./routes/CreateInvoice.js";
-import SendMailQueue from "./services/queues/SendMailQueue.js";
 import {redisConnection} from "./services/redis/RedisConnection.js";
-import GeneratePdfQueue from "./services/queues/GeneratePdfQueue.js";
 import {initSequelize} from "./services/database/Sequelize.js";
+import {initMailQueue} from "./services/queues/MailQueue.js";
+import {initPdfQueue} from "./services/queues/PdfQueue.js";
 
 dotenv.config();
 const app = express();
 
 (async () => {
-  // await dbService.init();
   await initSequelize();
 })();
 
-const sendMailQueue: SendMailQueue = new SendMailQueue("mail-sender", redisConnection);
-const generatePdfQueue: GeneratePdfQueue = new GeneratePdfQueue(
-    "pdf-generator", redisConnection, sendMailQueue
-);
+initMailQueue('mail-sender', redisConnection);
+initPdfQueue('pdf-generator', redisConnection);
 
 setupSwagger(app);
 
@@ -70,7 +67,7 @@ app.use(health);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-setupCreateInvoiceRoute(app, generatePdfQueue);
+setupCreateInvoiceRoute(app);
 
 app.use(createUser);
 

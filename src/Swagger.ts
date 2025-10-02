@@ -4,6 +4,9 @@ import swaggerJsdoc from "swagger-jsdoc";
 import {Express} from "express";
 import swaggerUi from "swagger-ui-express";
 
+/*
+TODO: Не видит операций в спецификации
+ */
 const setupSwagger = (expressApp: Express): void => {
     const swaggerOptions: swaggerJsdoc.Options = {
         definition: {
@@ -15,7 +18,7 @@ const setupSwagger = (expressApp: Express): void => {
             },
             servers: [
                 {
-                    url: "http://localhost:3001",
+                    url: `http://${process.env.APP_HOST}:${process.env.APP_PORT}`,
                     description: "Локальный сервер для разработки",
                 },
             ],

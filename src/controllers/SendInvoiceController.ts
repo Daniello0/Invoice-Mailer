@@ -1,22 +1,47 @@
 import console from "node:console";
 import {Invoice} from "../models/Invoice.js";
 import {Client} from "../models/Client.js";
-import GeneratePdfQueue from "../services/queues/GeneratePdfQueue.js";
 import {emailExistsInDB, getClient} from "../services/database/ClientService.js";
 import {addInvoiceToLogs, getInvoiceFromLogs} from "../services/database/LogsService.js";
+import {Request, Response} from "express";
+import {addPdfJob} from "../services/queues/PdfQueue.js";
 
-export const sendInvoice = async (reqInvoice: Invoice, pdfQueue: GeneratePdfQueue) => {
-    validate(reqInvoice);
+interface InvoiceInterface {
+    email: string;
+    works: Work[]
+}
 
-    await addLogToDB(reqInvoice);
+interface Work {
+    name: string;
+    cost: number;
+}
 
-    console.log("Получение клинтов");
-    const client: Client = await getClient(reqInvoice.email);
-    const invoice: Invoice = await getInvoiceFromLogs(
-        reqInvoice.email,
-    );
+export const sendInvoice = async (req: Request, res: Response) => {
+    console.log("Обращение к серверу...");
+    try {
+        const reqInvoice: InvoiceInterface = req.body;
+        const invoice: Invoice = Invoice.build();
+        invoice.setEmail(reqInvoice.email);
+        reqInvoice.works.forEach((w: Work) => {
+            invoice.addWork(w.name, w.cost);
+        })
+        validate(invoice);
 
-    await addInvoiceToQueue(client, invoice, pdfQueue);
+        await addLogToDB(invoice);
+
+        console.log("Получение клинтов");
+        const client: Client = await getClient(reqInvoice.email);
+        const invoiceFromDb: Invoice = await getInvoiceFromLogs(
+            reqInvoice.email,
+        );
+
+        await addInvoiceToQueue(client, invoiceFromDb);
+
+        res.sendStatus(200)
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: error.message });
+    }
 }
 
 function validate(invoice: Invoice) {
@@ -35,11 +60,12 @@ async function addLogToDB(invoice: Invoice) {
     }
 }
 
-async function addInvoiceToQueue(client: Client, invoice: Invoice, pdfQueue: GeneratePdfQueue) {
+async function addInvoiceToQueue(client: Client, invoice: Invoice) {
     console.log("Начало добавления данных в очередь");
-    await pdfQueue.addDataToQueue({
+
+    await addPdfJob({
         client: client,
         invoice: invoice,
-    });
+    })
     console.log("Данные добавлены в очередь.");
 }
