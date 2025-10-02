@@ -1,6 +1,5 @@
 import express from "express";
 import * as console from "node:console";
-import DBService from "./services/database/DBService.js";
 import process from "node:process";
 import dotenv from "dotenv";
 import health from "./routes/Health.js";
@@ -10,13 +9,14 @@ import setupCreateInvoiceRoute from "./routes/CreateInvoice.js";
 import SendMailQueue from "./services/queues/SendMailQueue.js";
 import {redisConnection} from "./services/redis/RedisConnection.js";
 import GeneratePdfQueue from "./services/queues/GeneratePdfQueue.js";
+import {initSequelize} from "./services/database/Sequelize.js";
 
 dotenv.config();
 const app = express();
 
-const dbService = new DBService();
 (async () => {
-  await dbService.init();
+  // await dbService.init();
+  await initSequelize();
 })();
 
 const sendMailQueue: SendMailQueue = new SendMailQueue("mail-sender", redisConnection);
@@ -70,7 +70,7 @@ app.use(health);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-setupCreateInvoiceRoute(app, dbService, generatePdfQueue);
+setupCreateInvoiceRoute(app, generatePdfQueue);
 
 app.use(createUser);
 

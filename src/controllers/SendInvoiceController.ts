@@ -1,17 +1,18 @@
 import console from "node:console";
 import {Invoice} from "../models/Invoice.js";
 import {Client} from "../models/Client.js";
-import DBService from "../services/database/DBService.js";
 import GeneratePdfQueue from "../services/queues/GeneratePdfQueue.js";
+import {emailExistsInDB, getClient} from "../services/database/ClientService.js";
+import {addInvoiceToLogs, getInvoiceFromLogs} from "../services/database/LogsService.js";
 
-export const sendInvoice = async (reqInvoice: Invoice, dbService: DBService, pdfQueue: GeneratePdfQueue) => {
+export const sendInvoice = async (reqInvoice: Invoice, pdfQueue: GeneratePdfQueue) => {
     validate(reqInvoice);
 
-    await addLogToDB(dbService, reqInvoice);
+    await addLogToDB(reqInvoice);
 
     console.log("Получение клинтов");
-    const client: Client = await dbService.getClient(reqInvoice.email);
-    const invoice: Invoice = await dbService.getInvoiceFromLogs(
+    const client: Client = await getClient(reqInvoice.email);
+    const invoice: Invoice = await getInvoiceFromLogs(
         reqInvoice.email,
     );
 
@@ -25,10 +26,10 @@ function validate(invoice: Invoice) {
     }
 }
 
-async function addLogToDB(dbService: DBService, invoice: Invoice) {
+async function addLogToDB(invoice: Invoice) {
     console.log("Начало проверки и добавления инвойса в лог");
-    if (await dbService.emailExistsInDB(invoice.email)) {
-        await dbService.addInvoiceToLogs(invoice);
+    if (await emailExistsInDB(invoice.email)) {
+        await addInvoiceToLogs(invoice);
     } else {
         throw new Error(`Ошибка! Почта ${invoice.email} не найдена`)
     }
