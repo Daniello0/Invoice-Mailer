@@ -2,11 +2,7 @@ import * as console from "node:console";
 import {Model, Table} from "sequelize-typescript";
 import {AutoIncrement, Column, DataType, PrimaryKey, Unique} from "sequelize-typescript/dist/index.js";
 import {z, ZodSafeParseResult} from "zod";
-
-export interface Work {
-  name: string;
-  cost: number;
-}
+import {InvoiceInterface, Work} from "../controllers/SendInvoiceController.js";
 
 interface validatorResult {
   success: boolean;
@@ -53,49 +49,39 @@ export class Invoice extends Model<Invoice>{
     defaultValue: DataType.NOW,
   })
   created_at: Date;
+}
 
-  setEmail(email: string) {
-    this.email = email;
+export const validateInvoice = (invoice: InvoiceInterface): validatorResult => {
+  console.log("Валидация данных...");
+
+  const invoiceValidate = {
+    email: invoice.email,
+    works: invoice.works,
   }
 
-  getWorks(): Work[] {
-    if (!this.works) {
-      return [];
+  const result: ZodSafeParseResult<{ email: string, works: Work[] }> = invoiceSchema.safeParse(invoiceValidate);
+
+  if (!result.error) {
+    return {
+      success: true,
+      errMsg: ""
     }
-    try {
-      return JSON.parse(this.works);
-    } catch (e) {
-      console.error('Ошибка парсинга works:', e);
-      return [];
+  } else {
+    return {
+      success: false,
+      errMsg: result.error.message
     }
   }
+}
 
-  addWork(work: string, cost: number) {
-    const currentWorks: Work[] = this.getWorks();
-    currentWorks.push({ name: work, cost: cost });
-    this.works = JSON.stringify(currentWorks);
+export const parseWorks = (worksString: string): Work[] => {
+  if (!worksString) {
+    return [];
   }
-
-  static validateInvoice = (invoice: Invoice): validatorResult => {
-    console.log("Валидация данных...");
-
-    const invoiceValidate = {
-      email: invoice.email,
-      works: invoice.getWorks(),
-    }
-
-    const result: ZodSafeParseResult<{ email: string, works: Work[] }> = invoiceSchema.safeParse(invoiceValidate);
-
-    if (!result.error) {
-      return {
-        success: true,
-        errMsg: ""
-      }
-    } else {
-      return {
-        success: false,
-        errMsg: result.error.message
-      }
-    }
+  try {
+    return JSON.parse(worksString);
+  } catch (e) {
+    console.error('Ошибка парсинга works:', e);
+    return [];
   }
 }

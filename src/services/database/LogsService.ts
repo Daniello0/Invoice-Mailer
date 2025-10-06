@@ -1,11 +1,12 @@
 import {Invoice} from "../../models/Invoice.js";
 import console from "node:console";
+import {InvoiceInterface} from "../../controllers/SendInvoiceController.js";
 
-export const addInvoiceToLogs = async (invoice: Invoice): Promise<void> => {
+export const addInvoiceToLogs = async (invoice: InvoiceInterface): Promise<void> => {
     try {
         await Invoice.upsert({
             email: invoice.email,
-            works: invoice.works,
+            works: JSON.stringify(invoice.works),
             created_at: new Date(),
         });
     } catch (error) {

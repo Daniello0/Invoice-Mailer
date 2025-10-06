@@ -5,13 +5,14 @@ import {emailExistsInDB, getClient} from "../services/database/ClientService.js"
 import {addInvoiceToLogs, getInvoiceFromLogs} from "../services/database/LogsService.js";
 import {Request, Response} from "express";
 import {addPdfJob} from "../services/queues/PdfQueue.js";
+import {validateInvoice} from "../models/Invoice.js";
 
-interface InvoiceInterface {
+export interface InvoiceInterface {
     email: string;
     works: Work[]
 }
 
-interface Work {
+export interface Work {
     name: string;
     cost: number;
 }
@@ -20,14 +21,9 @@ export const sendInvoice = async (req: Request, res: Response) => {
     console.log("Обращение к серверу...");
     try {
         const reqInvoice: InvoiceInterface = req.body;
-        const invoice: Invoice = Invoice.build();
-        invoice.setEmail(reqInvoice.email);
-        reqInvoice.works.forEach((w: Work) => {
-            invoice.addWork(w.name, w.cost);
-        })
-        validate(invoice);
+        validate(reqInvoice);
 
-        await addLogToDB(invoice);
+        await addLogToDB(reqInvoice);
 
         console.log("Получение клинтов");
         const client: Client = await getClient(reqInvoice.email);
@@ -44,14 +40,14 @@ export const sendInvoice = async (req: Request, res: Response) => {
     }
 }
 
-function validate(invoice: Invoice) {
-    const validateInvoice = Invoice.validateInvoice(invoice);
-    if (!validateInvoice.success) {
-        throw new Error(validateInvoice.errMsg);
+function validate(invoice: InvoiceInterface) {
+    const validatorResult = validateInvoice(invoice);
+    if (!validatorResult.success) {
+        throw new Error(validatorResult.errMsg);
     }
 }
 
-async function addLogToDB(invoice: Invoice) {
+async function addLogToDB(invoice: InvoiceInterface) {
     console.log("Начало проверки и добавления инвойса в лог");
     if (await emailExistsInDB(invoice.email)) {
         await addInvoiceToLogs(invoice);
