@@ -12,6 +12,14 @@ export interface AttachmentInterface {
     contentType: string
 }
 
+interface ParamsInterface {
+    from: string
+    subject?: string
+    text?: string
+    filename?: string,
+    content?: string
+}
+
 export default class MailOptionsService {
 
     from: string;
@@ -19,6 +27,15 @@ export default class MailOptionsService {
     text: string = "Здравствуйте! Ваш счет за оплату выполненных услуг в приложении.";
     filename: string = "invoice.pdf";
     contentType: string = "application/pdf"
+
+    setParams({ from, subject, text, filename, content } = {} as ParamsInterface) {
+        if (from !== undefined) this.from = from;
+        if (subject !== undefined) this.subject = subject;
+        if (text !== undefined) this.text = text;
+        if (filename !== undefined) this.filename = filename;
+        if (content !== undefined) this.contentType = content; // исправлено
+    }
+
 
     setFrom(from: string) {
         this.from = from;
