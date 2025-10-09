@@ -4,9 +4,6 @@ import swaggerJsdoc from "swagger-jsdoc";
 import {Express} from "express";
 import swaggerUi from "swagger-ui-express";
 
-/*
-TODO: Не видит операций в спецификации
- */
 const setupSwagger = (expressApp: Express): void => {
     const swaggerOptions: swaggerJsdoc.Options = {
         definition: {
@@ -27,8 +24,9 @@ const setupSwagger = (expressApp: Express): void => {
             },
         },
         apis: [
-            path.join(process.cwd(), "server.ts"),
-            path.join(process.cwd(), "schemas/*.ts"),
+            path.join(process.cwd(), "src/server.ts"),
+            path.join(process.cwd(), "src/schemas/*.ts"),
+            path.join(process.cwd(), "src/swagger/*.ts"),
         ],
     };
 
