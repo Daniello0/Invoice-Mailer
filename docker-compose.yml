@@ -20,6 +20,7 @@ services:
     depends_on:
       - db
       - redis
+    command: sh -c "npx sequelize-cli db:migrate && npm start"
 
   db:
     image: postgres:15-alpine
@@ -33,7 +34,6 @@ services:
       - "${POSTGRES_PORT}:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./src/postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   redis:
     image: redis:7-alpine
