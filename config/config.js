@@ -1,6 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+/*
+TODO: По возможности изменить на config.TS
+ */
+
 export default {
     development: {
         username: process.env.POSTGRES_USER,

@@ -1,9 +1,11 @@
-'use strict';
-import { QueryInterface, DataTypes } from 'sequelize';
+'use strict'
 
-/** @type {import('sequelize-cli').Migration} */
-export default {
-  async up(queryInterface: QueryInterface) {
+// import type { QueryInterface } from 'sequelize';
+
+const { DataTypes } = require('sequelize');
+
+module.exports = {
+  async up(queryInterface) {
     await queryInterface.createTable('clients', {
       id: {
         type: DataTypes.BIGINT,
@@ -35,7 +37,7 @@ export default {
     });
   },
 
-  async down (queryInterface: QueryInterface) {
+  async down(queryInterface) {
     await queryInterface.dropTable('clients');
   }
 };
