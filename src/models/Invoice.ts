@@ -1,8 +1,9 @@
 import * as console from "node:console";
-import {Model, Table} from "sequelize-typescript";
+import {HasMany, Model, Table} from "sequelize-typescript";
 import {AutoIncrement, Column, DataType, PrimaryKey, Unique} from "sequelize-typescript/dist/index.js";
 import {z, ZodSafeParseResult} from "zod";
 import {InvoiceInterface, Work} from "../controllers/SendInvoiceController.js";
+import {InvoiceWork} from "./InvoiceWorks.js";
 
 interface validatorResult {
   success: boolean;
@@ -36,12 +37,8 @@ export class Invoice extends Model<Invoice>{
   })
   email!: string;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-    defaultValue: '[]'
-  })
-  works!: string;
+  @HasMany(() => InvoiceWork, {onDelete: 'CASCADE', hooks: true})
+  works!: InvoiceWork[];
 
   @Column({
     type: DataType.DATE,

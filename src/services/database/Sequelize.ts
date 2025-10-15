@@ -3,6 +3,7 @@ import {Sequelize} from "sequelize-typescript";
 import {Client} from "../../models/Client.js";
 import {Invoice} from "../../models/Invoice.js";
 import console from "node:console";
+import {InvoiceWork} from "../../models/InvoiceWorks.js";
 
 const POSTGRES_DB: string = process.env.POSTGRES_DB;
 const POSTGRES_USER: string = process.env.POSTGRES_USER;
@@ -14,7 +15,7 @@ const sequelize = new Sequelize({
     username: POSTGRES_USER,
     password: POSTGRES_PASSWORD,
     port: POSTGRES_PORT,
-    models: [Client, Invoice],
+    models: [Client, Invoice, InvoiceWork],
     dialectOptions: {},
     logging: false,
     define: {

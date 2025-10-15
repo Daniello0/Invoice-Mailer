@@ -17,10 +17,6 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      works: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-      },
       created_at: {
         type: DataTypes.DATE,
         allowNull: false,
