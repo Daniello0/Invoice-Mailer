@@ -29,10 +29,10 @@ export default class PdfGenerator {
       return pdfBuffer;
     } else {
       console.error(
-          "Ошибка: html-pdf-node не вернул Buffer.",
-          typeof pdfBuffer,
+        "Ошибка: html-pdf-node не вернул Buffer.",
+        typeof pdfBuffer,
       );
-      throw new Error("Ошибка: html-pdf-node не вернул Buffer.")
+      throw new Error("Ошибка: html-pdf-node не вернул Buffer.");
     }
   }
 }

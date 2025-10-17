@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 module.exports = {
   up: async (queryInterface) => {
@@ -10,7 +10,8 @@ module.exports = {
   },
 
   down: async (queryInterface) => {
-    await queryInterface.bulkDelete('clients', { email: 'daniilreservemail@gmail.com' });
-  }
+    await queryInterface.bulkDelete("clients", {
+      email: "daniilreservemail@gmail.com",
+    });
+  },
 };
-

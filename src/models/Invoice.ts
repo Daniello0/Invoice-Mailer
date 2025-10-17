@@ -1,9 +1,18 @@
 import * as console from "node:console";
-import {HasMany, Model, Table} from "sequelize-typescript";
-import {AutoIncrement, Column, DataType, PrimaryKey, Unique} from "sequelize-typescript/dist/index.js";
-import {z, ZodSafeParseResult} from "zod";
-import {InvoiceInterface, Work} from "../controllers/SendInvoiceController.js";
-import {InvoiceWork} from "./InvoiceWorks.js";
+import { HasMany, Model, Table } from "sequelize-typescript";
+import {
+  AutoIncrement,
+  Column,
+  DataType,
+  PrimaryKey,
+  Unique,
+} from "sequelize-typescript/dist/index.js";
+import { z, ZodSafeParseResult } from "zod";
+import {
+  InvoiceInterface,
+  Work,
+} from "../controllers/SendInvoiceController.js";
+import { InvoiceWork } from "./InvoiceWorks.js";
 
 interface validatorResult {
   success: boolean;
@@ -20,8 +29,8 @@ const invoiceSchema = z.object({
   works: z.array(workSchema).nonempty("Массив работ не может быть пустым"),
 });
 
-@Table({tableName: 'invoice_logs'})
-export class Invoice extends Model<Invoice>{
+@Table({ tableName: "invoice_logs" })
+export class Invoice extends Model<Invoice> {
   @PrimaryKey
   @AutoIncrement
   @Column({
@@ -37,7 +46,7 @@ export class Invoice extends Model<Invoice>{
   })
   email!: string;
 
-  @HasMany(() => InvoiceWork, {onDelete: 'CASCADE', hooks: true})
+  @HasMany(() => InvoiceWork, { onDelete: "CASCADE", hooks: true })
   works!: InvoiceWork[];
 
   @Column({
@@ -54,22 +63,23 @@ export const validateInvoice = (invoice: InvoiceInterface): validatorResult => {
   const invoiceValidate = {
     email: invoice.email,
     works: invoice.works,
-  }
+  };
 
-  const result: ZodSafeParseResult<{ email: string, works: Work[] }> = invoiceSchema.safeParse(invoiceValidate);
+  const result: ZodSafeParseResult<{ email: string; works: Work[] }> =
+    invoiceSchema.safeParse(invoiceValidate);
 
   if (!result.error) {
     return {
       success: true,
-      errMsg: ""
-    }
+      errMsg: "",
+    };
   } else {
     return {
       success: false,
-      errMsg: result.error.message
-    }
+      errMsg: result.error.message,
+    };
   }
-}
+};
 
 export const parseWorks = (worksString: string): Work[] => {
   if (!worksString) {
@@ -78,7 +88,7 @@ export const parseWorks = (worksString: string): Work[] => {
   try {
     return JSON.parse(worksString);
   } catch (e) {
-    console.error('Ошибка парсинга works:', e);
+    console.error("Ошибка парсинга works:", e);
     return [];
   }
-}
+};

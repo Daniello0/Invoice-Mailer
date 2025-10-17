@@ -3,13 +3,13 @@ import * as console from "node:console";
 import process from "node:process";
 import dotenv from "dotenv";
 import setupSwagger from "./Swagger.js";
-import {setupCreateUserRoute} from "./routes/CreateUserRoute.js";
-import {redisConnection} from "./services/redis/RedisConnection.js";
-import {initSequelize} from "./services/database/Sequelize.js";
-import {initMailQueue} from "./services/queues/MailQueue.js";
-import {initPdfQueue} from "./services/queues/PdfQueue.js";
-import {setupSendInvoiceRoute} from "./routes/SendInvoiceRoute.js";
-import {setupHealthRoute} from "./routes/HealthRoute.js";
+import { setupCreateUserRoute } from "./routes/CreateUserRoute.js";
+import { redisConnection } from "./services/redis/RedisConnection.js";
+import { initSequelize } from "./services/database/Sequelize.js";
+import { initMailQueue } from "./services/queues/MailQueue.js";
+import { initPdfQueue } from "./services/queues/PdfQueue.js";
+import { setupSendInvoiceRoute } from "./routes/SendInvoiceRoute.js";
+import { setupHealthRoute } from "./routes/HealthRoute.js";
 
 dotenv.config();
 const app = express();
@@ -20,8 +20,8 @@ setupSwagger(app);
   await initSequelize();
 })();
 
-initMailQueue('mail-sender', redisConnection);
-initPdfQueue('pdf-generator', redisConnection);
+initMailQueue("mail-sender", redisConnection);
+initPdfQueue("pdf-generator", redisConnection);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

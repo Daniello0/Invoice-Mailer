@@ -1,10 +1,10 @@
-'use strict';
+"use strict";
 
-const DataTypes = require('sequelize');
+const DataTypes = require("sequelize");
 
 module.exports = {
   async up(queryInterface) {
-    await queryInterface.createTable('invoice_works', {
+    await queryInterface.createTable("invoice_works", {
       id: {
         type: DataTypes.BIGINT,
         primaryKey: true,
@@ -15,11 +15,11 @@ module.exports = {
         type: DataTypes.BIGINT,
         allowNull: false,
         references: {
-          model: 'invoice_logs',
-          key: 'id',
+          model: "invoice_logs",
+          key: "id",
         },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
       },
       name: {
         type: DataTypes.STRING,
@@ -33,6 +33,6 @@ module.exports = {
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable('invoice_works');
-  }
+    await queryInterface.dropTable("invoice_works");
+  },
 };
