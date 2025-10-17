@@ -25,7 +25,3 @@
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-
-/*
-TODO: Не отправляет инвойс через swagger.
- */

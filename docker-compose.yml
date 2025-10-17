@@ -11,6 +11,7 @@ services:
       - NODE_ENV=${NODE_ENV}
       - GMAIL_USER=${GMAIL_USER}
       - GMAIL_APP_PASS=${GMAIL_APP_PASS}
+      - APP_HOST=${APP_HOST}
       - APP_PORT=${APP_PORT}
       - SENDGRID_API_KEY=${SENDGRID_API_KEY}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -23,7 +24,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    command: sh -c "npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all && npm start"
+    command: sh -c "npx tsx ./node_modules/.bin/sequelize db:migrate && npx tsx ./node_modules/.bin/sequelize db:seed:all && npm start"
 
   db:
     image: postgres:15-alpine
