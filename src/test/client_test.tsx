@@ -1,4 +1,4 @@
-import axios, {AxiosInstance, AxiosResponse} from "axios";
+import axios, { AxiosInstance, AxiosResponse } from "axios";
 import * as console from "node:console";
 import process from "node:process";
 import dotenv from "dotenv";
@@ -7,7 +7,7 @@ dotenv.config();
 
 interface InvoiceInterface {
   email: string;
-  works: Work[]
+  works: Work[];
 }
 
 interface Work {
@@ -21,13 +21,13 @@ const api: AxiosInstance = axios.create({
 
 async function testPostRequest() {
   const dataset: InvoiceInterface = {
-    email: 'daniilreservemail@gmail.com',
+    email: "daniilreservemail@gmail.com",
     works: [
-      {name: 'Работа 1', cost: 200},
-      {name: 'Работа 2', cost: 200},
-      {name: 'Скидка', cost: -50}
-    ]
-  }
+      { name: "Работа 1", cost: 200 },
+      { name: "Работа 2", cost: 200 },
+      { name: "Скидка", cost: -50 },
+    ],
+  };
 
   console.log(JSON.stringify(dataset, null, 2));
 

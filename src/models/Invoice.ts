@@ -1,12 +1,18 @@
 import * as console from "node:console";
-import {Model, Table} from "sequelize-typescript";
-import {AutoIncrement, Column, DataType, PrimaryKey, Unique} from "sequelize-typescript/dist/index.js";
-import {z, ZodSafeParseResult} from "zod";
-
-export interface Work {
-  name: string;
-  cost: number;
-}
+import { HasMany, Model, Table } from "sequelize-typescript";
+import {
+  AutoIncrement,
+  Column,
+  DataType,
+  PrimaryKey,
+  Unique,
+} from "sequelize-typescript/dist/index.js";
+import { z, ZodSafeParseResult } from "zod";
+import {
+  InvoiceInterface,
+  Work,
+} from "../controllers/SendInvoiceController.js";
+import { InvoiceWork } from "./InvoiceWorks.js";
 
 interface validatorResult {
   success: boolean;
@@ -23,8 +29,8 @@ const invoiceSchema = z.object({
   works: z.array(workSchema).nonempty("Массив работ не может быть пустым"),
 });
 
-@Table({tableName: 'invoice_logs'})
-export class Invoice extends Model<Invoice>{
+@Table({ tableName: "invoice_logs" })
+export class Invoice extends Model<Invoice> {
   @PrimaryKey
   @AutoIncrement
   @Column({
@@ -40,12 +46,8 @@ export class Invoice extends Model<Invoice>{
   })
   email!: string;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-    defaultValue: '[]'
-  })
-  works!: string;
+  @HasMany(() => InvoiceWork, { onDelete: "CASCADE", hooks: true })
+  works!: InvoiceWork[];
 
   @Column({
     type: DataType.DATE,
@@ -53,49 +55,40 @@ export class Invoice extends Model<Invoice>{
     defaultValue: DataType.NOW,
   })
   created_at: Date;
-
-  setEmail(email: string) {
-    this.email = email;
-  }
-
-  getWorks(): Work[] {
-    if (!this.works) {
-      return [];
-    }
-    try {
-      return JSON.parse(this.works);
-    } catch (e) {
-      console.error('Ошибка парсинга works:', e);
-      return [];
-    }
-  }
-
-  addWork(work: string, cost: number) {
-    const currentWorks: Work[] = this.getWorks();
-    currentWorks.push({ name: work, cost: cost });
-    this.works = JSON.stringify(currentWorks);
-  }
-
-  static validateInvoice = (invoice: Invoice): validatorResult => {
-    console.log("Валидация данных...");
-
-    const invoiceValidate = {
-      email: invoice.email,
-      works: invoice.getWorks(),
-    }
-
-    const result: ZodSafeParseResult<{ email: string, works: Work[] }> = invoiceSchema.safeParse(invoiceValidate);
-
-    if (!result.error) {
-      return {
-        success: true,
-        errMsg: ""
-      }
-    } else {
-      return {
-        success: false,
-        errMsg: result.error.message
-      }
-    }
-  }
 }
+
+export const validateInvoice = (invoice: InvoiceInterface): validatorResult => {
+  console.log("Валидация данных...");
+
+  const invoiceValidate = {
+    email: invoice.email,
+    works: invoice.works,
+  };
+
+  const result: ZodSafeParseResult<{ email: string; works: Work[] }> =
+    invoiceSchema.safeParse(invoiceValidate);
+
+  if (!result.error) {
+    return {
+      success: true,
+      errMsg: "",
+    };
+  } else {
+    return {
+      success: false,
+      errMsg: result.error.message,
+    };
+  }
+};
+
+export const parseWorks = (worksString: string): Work[] => {
+  if (!worksString) {
+    return [];
+  }
+  try {
+    return JSON.parse(worksString);
+  } catch (e) {
+    console.error("Ошибка парсинга works:", e);
+    return [];
+  }
+};

@@ -1,7 +1,13 @@
-import {Model, Table} from "sequelize-typescript";
-import {AutoIncrement, Column, DataType, PrimaryKey, Unique} from "sequelize-typescript/dist/index.js";
+import { Model, Table } from "sequelize-typescript";
+import {
+  AutoIncrement,
+  Column,
+  DataType,
+  PrimaryKey,
+  Unique,
+} from "sequelize-typescript/dist/index.js";
 
-@Table({tableName: 'clients'})
+@Table({ tableName: "clients" })
 export class Client extends Model<Client> {
   @PrimaryKey
   @AutoIncrement

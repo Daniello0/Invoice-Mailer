@@ -1,7 +1,7 @@
 import process from "node:process";
 import nodemailer from "nodemailer";
 import * as console from "node:console";
-import sgMailer from '@sendgrid/mail'
+import sgMailer from "@sendgrid/mail";
 import MailOptionsService from "./MailOptionsService.js";
 
 const GMAIL_USER: string | undefined = process.env.GMAIL_USER;
@@ -28,7 +28,9 @@ export default class MailSender {
     const mailOptions = new MailOptionsService().setFrom(GMAIL_USER);
 
     try {
-      const info = await transporter.sendMail(mailOptions.getMailOptions(recipientEmail, pdfBuffer));
+      const info = await transporter.sendMail(
+        mailOptions.getMailOptions(recipientEmail, pdfBuffer),
+      );
       console.log("Письмо успешно отправлено: ", info.response);
     } catch (error) {
       throw error;
@@ -37,15 +39,20 @@ export default class MailSender {
 
   // Работает только для daniilreservemail@gmail.com
   static async sendTestEmail(pdfBuffer: Buffer) {
-    const mailOptions: MailOptionsService = new MailOptionsService().setFrom(GMAIL_USER);
+    const mailOptions: MailOptionsService = new MailOptionsService();
+    mailOptions.setParams({
+      from: GMAIL_USER,
+    });
 
     try {
       await sgMailer.send(mailOptions.getSgMailOptions(pdfBuffer));
     } catch (error) {
-
-      console.error('Ошибка при отправке письма через @sendgrid/mail:');
+      console.error("Ошибка при отправке письма через @sendgrid/mail:");
       if (error.response) {
-        console.error('Тело ответа от SendGrid:', JSON.stringify(error.response.body, null, 2));
+        console.error(
+          "Тело ответа от SendGrid:",
+          JSON.stringify(error.response.body, null, 2),
+        );
       } else {
         console.error(error);
       }

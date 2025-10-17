@@ -1,6 +1,7 @@
 import React from "react";
 import { Client } from "../models/Client.js";
-import {Invoice, Work} from "../models/Invoice.js";
+import { Invoice } from "../models/Invoice.js";
+import { Work } from "../controllers/SendInvoiceController.js";
 
 export default function PdfView({
   client,
@@ -55,7 +56,7 @@ export default function PdfView({
               <span>Описание</span>
               <span>Стоимость</span>
             </div>
-            {JSON.parse(invoice.works).map((work: Work, index: number) => (
+            {invoice.works.map((work: Work, index: number) => (
               <div className="work" key={index}>
                 <span className="work-name">{work.name}</span>
                 <span className="work-price">
@@ -68,7 +69,7 @@ export default function PdfView({
           <div className="total-coast">
             <span className="total-coast-label">Итого к оплате</span>
             <span className="total-coast-number">
-              {JSON.parse(invoice.works)
+              {invoice.works
                 .reduce((sum: number, work: Work) => sum + work.cost, 0)
                 .toLocaleString("ru-RU")}{" "}
               $
